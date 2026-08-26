@@ -21,10 +21,21 @@
 
 const express = require("express");
 
-const {generateQuestion} = require("../controllers/interviewController");
+const {generateQuestion, submitAnswer} = require("../controllers/interviewController");
 
 const router = express.Router();
 
 router.post("/generate", generateQuestion);
+router.post("/answer", submitAnswer);
+
+// router.post("/answer", (req, res) => {
+//   const { question, answer } = req.body;
+//   console.log("Question:", question);
+//   console.log("Answer:", answer);
+
+//   res.json({
+//     message: "Answer received successfully",
+//   });
+// });
 
 module.exports = router;

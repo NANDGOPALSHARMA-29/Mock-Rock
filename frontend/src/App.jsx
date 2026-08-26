@@ -6,6 +6,8 @@ function App() {
   const [experience, setExperience] = useState("");
   const [difficulty, setDifficulty] = useState("");
   const [question, setQuestion] = useState("");
+  const [answer, setAnswer] = useState("");
+  const [evaluation, setEvaluation] = useState("");
 
   const generateQuestion = async () => {
     try {
@@ -31,6 +33,30 @@ function App() {
       console.error("Error:", error);
     }
   };
+
+  const submitAnswer = async () => {
+  try {
+    const response = await fetch(
+      "http://localhost:5000/api/interview/answer",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          question,
+          answer,
+        }),
+      }
+    );
+
+    const data = await response.json();
+
+    setEvaluation(data.evaluation);
+  } catch (error) {
+    console.error("Error:", error);
+  }
+};
 
   return (
     <div>
@@ -70,12 +96,34 @@ function App() {
         Generate Question
       </button>
 
+
+
+
       {question && (
-        <div>
-          <h2>Interview Question</h2>
-          <p>{question}</p>
-        </div>
-      )}
+  <div>
+    <h2>Interview Question</h2>
+    <p>{question}</p>
+
+    <textarea
+      value={answer}
+      onChange={(e) => setAnswer(e.target.value)}
+      placeholder="Write your answer here..."
+      rows="6"
+    />
+
+    <br />
+
+    <button onClick={submitAnswer}>
+  Submit Answer
+</button>
+{evaluation && (
+  <div>
+    <h2>AI Evaluation</h2>
+    <p>{evaluation}</p>
+  </div>
+)}
+  </div>
+)}
     </div>
   );
 }
