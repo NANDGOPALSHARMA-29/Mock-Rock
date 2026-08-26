@@ -1,0 +1,23 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
+div {
+  text-align: center;
+}
+
+select,
+button {
+  padding: 10px;
+  margin: 10px;
+}
+
+button {
+  cursor: pointer;
+}
+
+p {
+  font-size: 18px;
+}
+
