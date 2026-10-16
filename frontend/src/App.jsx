@@ -1,6 +1,8 @@
 import { useState } from "react";
 import "./App.css";
 
+const API_URL = "http://localhost:5000/api/interview";
+
 function App() {
   const [role, setRole] = useState("");
   const [experience, setExperience] = useState("");
@@ -8,125 +10,281 @@ function App() {
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [evaluation, setEvaluation] = useState("");
+  const [loadingQuestion, setLoadingQuestion] = useState(false);
+  const [loadingEvaluation, setLoadingEvaluation] = useState(false);
+  const [error, setError] = useState("");
 
   const generateQuestion = async () => {
-    try {
-      const response = await fetch(
-        "http://localhost:5000/api/interview/generate",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            role,
-            experience,
-            difficulty,
-          }),
-        }
-      );
-
-      const data = await response.json();
-
-      setQuestion(data.question);
-    } catch (error) {
-      console.error("Error:", error);
+    if (!role || !experience || !difficulty) {
+      setError("Please select role, experience and difficulty.");
+      return;
     }
-  };
 
-  const submitAnswer = async () => {
-  try {
-    const response = await fetch(
-      "http://localhost:5000/api/interview/answer",
-      {
+    setLoadingQuestion(true);
+    setError("");
+    setQuestion("");
+    setAnswer("");
+    setEvaluation("");
+
+    try {
+      const response = await fetch(`${API_URL}/generate`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          question,
-          answer,
-        }),
+        body: JSON.stringify({ role, experience, difficulty }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to generate question.");
       }
-    );
 
-    const data = await response.json();
+      setQuestion(data.question);
+    } catch (err) {
+      setError(err.message || "Could not connect to the server.");
+    } finally {
+      setLoadingQuestion(false);
+    }
+  };
 
-    setEvaluation(data.evaluation);
-  } catch (error) {
-    console.error("Error:", error);
-  }
-};
+  const submitAnswer = async () => {
+    if (!answer.trim()) {
+      setError("Please write your answer before submitting.");
+      return;
+    }
+
+    setLoadingEvaluation(true);
+    setError("");
+    setEvaluation("");
+
+    try {
+      const response = await fetch(`${API_URL}/answer`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ question, answer }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to evaluate answer.");
+      }
+
+      setEvaluation(data.evaluation);
+    } catch (err) {
+      setError(err.message || "Could not connect to the server.");
+    } finally {
+      setLoadingEvaluation(false);
+    }
+  };
 
   return (
-    <div>
-      <h1>Mock & Rock</h1>
+    <div className="app-shell">
+      <header className="navbar">
+        <a href="#home" className="brand">
+          <span className="brand-icon">M</span>
+          <span>Mock <span className="brand-accent">&</span> Rock</span>
+        </a>
 
-      <h2>Create Interview</h2>
+        <div className="nav-right">
+          <span className="ai-badge">
+            <span className="status-dot" />
+            AI INTERVIEW STUDIO
+          </span>
+        </div>
+      </header>
 
-      <select value={role} onChange={(e) => setRole(e.target.value)}>
-        <option value="">Select Role</option>
-        <option value="Java Developer">Java Developer</option>
-        <option value="Frontend Developer">Frontend Developer</option>
-        <option value="Backend Developer">Backend Developer</option>
-        <option value="Python Developer">Python Developer</option>
-      </select>
+      <main className="main-content" id="home">
+        <section className="hero">
+          <div className="eyebrow">
+            <span>✦</span> YOUR NEXT OPPORTUNITY STARTS HERE
+          </div>
 
-      <select
-        value={experience}
-        onChange={(e) => setExperience(e.target.value)}
-      >
-        <option value="">Select Experience</option>
-        <option value="Fresher">Fresher</option>
-        <option value="0-1 Years">0-1 Years</option>
-        <option value="1-3 Years">1-3 Years</option>
-      </select>
+          <h1>
+            Practice smarter.
+            <br />
+            <span>Interview better.</span>
+          </h1>
 
-      <select
-        value={difficulty}
-        onChange={(e) => setDifficulty(e.target.value)}
-      >
-        <option value="">Select Difficulty</option>
-        <option value="Easy">Easy</option>
-        <option value="Medium">Medium</option>
-        <option value="Hard">Hard</option>
-      </select>
+          <p className="hero-description">
+            Build confidence, sharpen your answers, and get AI-powered
+            feedback before your real interview.
+          </p>
+        </section>
 
-      <button onClick={generateQuestion}>
-        Generate Question
-      </button>
+        <section className="setup-card">
+          <div className="section-heading">
+            <div className="heading-icon">✳</div>
+            <div>
+              <h2>Set up your interview</h2>
+              <p>Customize your session to match your goals.</p>
+            </div>
+          </div>
 
+          <div className="form-grid">
+            <div className="field">
+              <label htmlFor="role">JOB ROLE</label>
+              <select
+                id="role"
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+              >
+                <option value="">Select your role</option>
+                <option value="Java Developer">Java Developer</option>
+                <option value="Frontend Developer">Frontend Developer</option>
+                <option value="Backend Developer">Backend Developer</option>
+                <option value="Python Developer">Python Developer</option>
+              </select>
+            </div>
 
+            <div className="field">
+              <label htmlFor="experience">EXPERIENCE LEVEL</label>
+              <select
+                id="experience"
+                value={experience}
+                onChange={(e) => setExperience(e.target.value)}
+              >
+                <option value="">Select experience</option>
+                <option value="Fresher">Fresher</option>
+                <option value="0-1 Years">0 – 1 Years</option>
+                <option value="1-3 Years">1 – 3 Years</option>
+              </select>
+            </div>
 
+            <div className="field">
+              <label htmlFor="difficulty">DIFFICULTY</label>
+              <select
+                id="difficulty"
+                value={difficulty}
+                onChange={(e) => setDifficulty(e.target.value)}
+              >
+                <option value="">Select difficulty</option>
+                <option value="Easy">Easy</option>
+                <option value="Medium">Medium</option>
+                <option value="Hard">Hard</option>
+              </select>
+            </div>
+          </div>
 
-      {question && (
-  <div>
-    <h2>Interview Question</h2>
-    <p>{question}</p>
+          <button
+            className="primary-button generate-button"
+            onClick={generateQuestion}
+            disabled={loadingQuestion || loadingEvaluation}
+          >
+            {loadingQuestion ? (
+              <>Generating question...</>
+            ) : (
+              <>Generate interview question <span>↗</span></>
+            )}
+          </button>
 
-    <textarea
-      value={answer}
-      onChange={(e) => setAnswer(e.target.value)}
-      placeholder="Write your answer here..."
-      rows="6"
-    />
+          <p className="setup-note">
+            ✦ &nbsp; Questions tailored to your selected experience and role
+          </p>
+        </section>
 
-    <br />
+        {error && (
+          <div className="error-message" role="alert">
+            <span>!</span> {error}
+          </div>
+        )}
 
-    <button onClick={submitAnswer}>
-  Submit Answer
-</button>
-{evaluation && (
-  <div>
-    <h2>AI Evaluation</h2>
-    <p>{evaluation}</p>
-  </div>
-)}
-  </div>
-)}
+        {question && (
+          <section className="interview-section">
+            <div className="section-label">
+              <span className="live-dot" />
+              YOUR INTERVIEW SESSION
+            </div>
+
+            <div className="question-card">
+              <div className="question-topline">
+                <span className="question-number">QUESTION 01</span>
+                <span className={`difficulty-tag ${difficulty.toLowerCase()}`}>
+                  {difficulty}
+                </span>
+              </div>
+
+              <h2>{question}</h2>
+
+              <div className="question-meta">
+                <span>◈ {role}</span>
+                <span>◷ {experience}</span>
+              </div>
+            </div>
+
+            <div className="answer-card">
+              <div className="answer-heading">
+                <div>
+                  <h2>Your answer</h2>
+                  <p>Explain your thought process clearly.</p>
+                </div>
+                <span className="editor-label">✎ TEXT EDITOR</span>
+              </div>
+
+              <textarea
+                value={answer}
+                onChange={(e) => setAnswer(e.target.value)}
+                placeholder="Start writing your answer here..."
+                rows={7}
+                disabled={loadingEvaluation}
+              />
+
+              <div className="answer-footer">
+                <span>{answer.trim() ? answer.trim().split(/\s+/).length : 0} words</span>
+
+                <button
+                  className="primary-button"
+                  onClick={submitAnswer}
+                  disabled={loadingEvaluation || !answer.trim()}
+                >
+                  {loadingEvaluation
+                    ? "Evaluating..."
+                    : <>Evaluate my answer <span>→</span></>}
+                </button>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {evaluation && (
+          <section className="evaluation-card">
+            <div className="evaluation-heading">
+              <div className="heading-icon">✦</div>
+              <div>
+                <h2>AI evaluation</h2>
+                <p>Your feedback for this answer</p>
+              </div>
+              <span className="evaluated-badge">✓ Evaluated</span>
+            </div>
+
+            <div className="evaluation-feedback">
+              {evaluation}
+            </div>
+
+            <button
+              className="secondary-button"
+              onClick={generateQuestion}
+              disabled={loadingQuestion}
+            >
+              {loadingQuestion ? "Generating..." : "↻ Practice another question"}
+            </button>
+          </section>
+        )}
+
+        <footer className="footer">
+          <div className="footer-brand">
+            <span className="brand-icon small">M</span>
+            <span>Mock & Rock</span>
+          </div>
+          <span>Built to help you show up with confidence.</span>
+        </footer>
+      </main>
     </div>
   );
 }
 
 export default App;
-
