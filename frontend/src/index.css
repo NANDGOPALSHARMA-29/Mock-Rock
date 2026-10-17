@@ -49,3 +49,11 @@ textarea:focus-visible {
   background: rgba(167, 139, 250, 0.35);
   color: #ffffff;
 }
+.session-loading {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background: #0b0b14;
+  color: #f4f4fb;
+  font-family: Inter, Arial, sans-serif;
+}
