@@ -25,8 +25,10 @@ const {generateQuestion, submitAnswer} = require("../controllers/interviewContro
 
 const router = express.Router();
 
-router.post("/generate", generateQuestion);
-router.post("/answer", submitAnswer);
+const { protect } = require("../middleware/authMiddleware");
+
+router.post("/generate", protect, generateQuestion);
+router.post("/answer", protect, submitAnswer);
 
 // router.post("/answer", (req, res) => {
 //   const { question, answer } = req.body;

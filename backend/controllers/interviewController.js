@@ -6,19 +6,25 @@ const {
 const generateQuestion = async (req, res) => {
     try {
 
-        const { role, experience, difficulty } = req.body;
+        const {
+  role,
+  experience,
+  difficulty,
+  previousResults = [],
+} = req.body;
 
-        if (!role || !experience || !difficulty) {
-            return res.status(400).json({
-                message: "Role, experience and difficulty are required"
-            });
-        }
+        if (!Array.isArray(previousResults) || previousResults.length > 5) {
+  return res.status(400).json({
+    message: "Invalid interview history",
+  });
+}
 
         const question = await generateInterviewQuestion(
-            role,
-            experience,
-            difficulty
-        );
+  role,
+  experience,
+  difficulty,
+  previousResults
+);
 
         res.status(200).json({
             question
