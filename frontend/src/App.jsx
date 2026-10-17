@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import "./App.css";
 
 const API_URL = "http://localhost:5000/api/interview";
@@ -13,6 +13,94 @@ function App() {
   const [loadingQuestion, setLoadingQuestion] = useState(false);
   const [loadingEvaluation, setLoadingEvaluation] = useState(false);
   const [error, setError] = useState("");
+  const [isListening, setIsListening] = useState(false);
+  const [interimTranscript, setInterimTranscript] = useState("");
+
+  const recognitionRef = useRef(null);
+
+  
+  const startRecording = () => {
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      setError(
+        "Speech recognition is not supported in this browser. Please try Chrome."
+      );
+      return;
+    }
+    setError("");
+    setInterimTranscript("");
+
+    const recognition = new SpeechRecognition();
+
+    recognition.lang = "en-IN";
+    recognition.continuous = true;
+    recognition.interimResults = true;
+
+    recognition.onstart = () => {
+      setIsListening(true);
+    };
+
+    recognition.onresult = (event) => {
+      let finalText = "";
+      let interimText = "";
+
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript;
+
+        if (event.results[i].isFinal) {
+          finalText += transcript;
+        } else {
+          interimText += transcript;
+        }
+      }
+
+      if (finalText) {
+        setAnswer((previous) => {
+          const separator = previous.trim() ? " " : "";
+          return previous + separator + finalText.trim();
+        });
+      }
+
+      setInterimTranscript(interimText);
+    };
+
+    recognition.onerror = (event) => {
+      if (event.error === "not-allowed") {
+        setError("Microphone permission denied. Allow microphone access in your browser.");
+      } else if (event.error === "no-speech") {
+        setError("No speech detected. Please try speaking again.");
+      } else if (event.error !== "aborted") {
+        setError(`Speech recognition error: ${event.error}`);
+      }
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+      setInterimTranscript("");
+      recognitionRef.current = null;
+    };
+
+    recognitionRef.current = recognition;
+
+    try {
+      recognition.start();
+    } catch (err) {
+      recognitionRef.current = null;
+      setIsListening(false);
+      setError("Could not start recording. Please try again.");
+    }
+  };
+
+  const stopRecording = () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+    }
+
+    setIsListening(false);
+    setInterimTranscript("");
+  };
+
 
   const generateQuestion = async () => {
     if (!role || !experience || !difficulty) {
@@ -224,6 +312,31 @@ function App() {
                 </div>
                 <span className="editor-label">✎ TEXT EDITOR</span>
               </div>
+              
+<div className="voice-controls">
+  <button
+    type="button"
+    className={`voice-button ${isListening ? "recording" : ""}`}
+    onClick={isListening ? stopRecording : startRecording}
+    disabled={loadingEvaluation}
+  >
+    <span>{isListening ? "■" : "🎙"}</span>
+    {isListening ? "Stop Recording" : "Start Speaking"}
+  </button>
+
+  {isListening && (
+    <span className="recording-status">
+      <span className="recording-dot" />
+      Listening...
+    </span>
+  )}
+</div>
+
+{interimTranscript && (
+  <p className="interim-transcript">
+    Hearing: {interimTranscript}
+  </p>
+)}
 
               <textarea
                 value={answer}

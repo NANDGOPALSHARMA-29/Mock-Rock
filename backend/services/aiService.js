@@ -16,7 +16,7 @@ Do not provide the answer.
 `;
 
     const response = await ai.models.generateContent({
-        model: "gemini-3.7-flash",
+        model: "gemini-3.6-flash",
         contents: prompt,
     });
 
@@ -40,7 +40,7 @@ Feedback: <brief feedback>
 `;
 
     const response = await ai.models.generateContent({
-        model: "gemini-3.7-flash",
+        model: "gemini-3.6-flash",
         contents: prompt,
     });
 
