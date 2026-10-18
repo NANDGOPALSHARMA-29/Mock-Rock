@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import "./App.css";
+import HistoryPage from "./components/HistoryPage";
 
 const API_URL = "http://localhost:5000/api/interview";
 
@@ -23,7 +24,8 @@ function InterviewDashboard({ user, onLogout }) {
 
   const recognitionRef = useRef(null);
 
-  
+  const [showHistory, setShowHistory] = useState(false);
+
   const startRecording = () => {
     const SpeechRecognition =
       window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -176,25 +178,62 @@ setQuestionNumber((previous) => previous + 1);
         throw new Error(data.message || "Failed to evaluate answer.");
       }
 
-      setEvaluation(data.evaluation);
-      const scoreMatch = data.evaluation.match(/Score:\s*(\d+(?:\.\d+)?)\s*\/\s*10/i);
+      
+setEvaluation(data.evaluation);
+
+const scoreMatch = data.evaluation.match(
+  /Score:\s*(\d+(?:\.\d+)?)\s*\/\s*10/i
+);
 
 const score = scoreMatch ? Number(scoreMatch[1]) : null;
 
-setInterviewResults((previous) => [
-  ...previous,
-  {
-    questionNumber,
-    question,
-    answer,
-    evaluation: data.evaluation,
-    score,
-  },
-]);
+const newResult = {
+  questionNumber,
+  question,
+  answer,
+  evaluation: data.evaluation,
+  score,
+};
+
+const updatedResults = [...interviewResults, newResult];
+
+setInterviewResults(updatedResults);
 
 if (questionNumber === TOTAL_QUESTIONS) {
-  setInterviewCompleted(true);
+  try {
+    const saveResponse = await fetch(
+      "http://localhost:5000/api/history",
+      {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          role,
+          experience,
+          difficulty,
+          results: updatedResults,
+        }),
+      }
+    );
+
+    const saveData = await saveResponse.json();
+
+    if (!saveResponse.ok) {
+      throw new Error(
+        saveData.message || "Could not save interview history."
+      );
+    }
+
+    setInterviewCompleted(true);
+  } catch (saveError) {
+    setError(
+      `Interview evaluated, but history could not be saved: ${saveError.message}`
+    );
+  }
 }
+
     } catch (err) {
       setError(err.message || "Could not connect to the server.");
     } finally {
@@ -227,10 +266,25 @@ if (questionNumber === TOTAL_QUESTIONS) {
   >
     Logout
   </button>
+  <button
+  type="button"
+  className="logout-button"
+  onClick={() => setShowHistory(true)}
+>
+  History
+</button>
 </div>
       </header>
 
       <main className="main-content" id="home">
+        {showHistory ? (
+  <HistoryPage onBack={() => setShowHistory(false)} />
+) : (
+  <>
+    {/* Existing hero, setup card, interview,
+        evaluation and final scorecard yahan rahenge. */}
+  </>
+)}
         <section className="hero">
           <div className="eyebrow">
             <span>✦</span> YOUR NEXT OPPORTUNITY STARTS HERE
@@ -340,7 +394,7 @@ if (questionNumber === TOTAL_QUESTIONS) {
             <div className="question-card">
               <div className="question-topline">
                 <span className="question-number">
-  QUESTION {String(questionNumber).padStart(2, "0")} / 05
+  QUESTION {String(questionNumber).padStart(2, "0")} / {String(TOTAL_QUESTIONS).padStart(2, "0")}
 </span>
                 <span className={`difficulty-tag ${difficulty.toLowerCase()}`}>
                   {difficulty}

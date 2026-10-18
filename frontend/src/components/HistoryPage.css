@@ -1,0 +1,171 @@
+
+.history-page {
+  width: min(100% - 40px, 1000px);
+  margin: 0 auto;
+  padding: 48px 0 72px;
+  color: #f4f4fb;
+}
+
+.history-header,
+.history-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.history-eyebrow {
+  color: #a78bfa;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.history-header h1 {
+  margin: 12px 0 8px;
+  font-size: clamp(28px, 4vw, 38px);
+}
+
+.history-header p,
+.history-card-top p {
+  color: #a4a4ba;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.history-back,
+.history-secondary {
+  border: 1px solid #393951;
+  border-radius: 9px;
+  padding: 10px 14px;
+  background: #191927;
+  color: #f4f4fb;
+  cursor: pointer;
+}
+
+.history-list {
+  display: grid;
+  gap: 18px;
+  margin-top: 32px;
+}
+
+.history-card,
+.history-empty {
+  padding: 24px;
+  border: 1px solid #2c2c43;
+  border-radius: 16px;
+  background: #141420;
+}
+
+.history-card-top h2 {
+  margin: 0 0 8px;
+  font-size: 20px;
+}
+
+.history-score {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.history-score strong {
+  color: #b8a0ff;
+  font-size: 27px;
+}
+
+.history-score span,
+.history-average {
+  color: #a4a4ba;
+  font-size: 13px;
+}
+
+.history-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.history-tags span {
+  padding: 6px 10px;
+  border: 1px solid #35354c;
+  border-radius: 7px;
+  color: #d6d0ed;
+  font-size: 12px;
+}
+
+.history-average {
+  margin: 16px 0;
+}
+
+.history-primary {
+  border: 0;
+  border-radius: 9px;
+  padding: 12px 16px;
+  background: #8050ed;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.history-empty {
+  margin-top: 32px;
+}
+
+.history-empty p {
+  color: #a4a4ba;
+  line-height: 1.6;
+}
+
+.history-details {
+  display: grid;
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.history-result {
+  padding: 16px;
+  border: 1px solid #303047;
+  border-radius: 10px;
+  background: #10101b;
+  overflow-wrap: anywhere;
+}
+
+.history-result h3 {
+  margin-top: 0;
+  color: #c4b5fd;
+  font-size: 15px;
+}
+
+.history-result p {
+  color: #d2d2e2;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.history-error {
+  margin-top: 24px;
+  color: #ffb4c2;
+}
+
+@media (max-width: 600px) {
+  .history-page {
+    width: min(100% - 28px, 1000px);
+    padding-top: 28px;
+  }
+
+  .history-header,
+  .history-card-top {
+    flex-direction: column;
+  }
+
+  .history-score {
+    align-items: flex-start;
+  }
+
+  .history-card,
+  .history-empty {
+    padding: 18px;
+  }
+}

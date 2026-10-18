@@ -6,6 +6,8 @@ const cookieParser = require("cookie-parser");
 const connectDB = require("./config/db");
 const interviewRoutes = require("./routes/interviewRoutes");
 const authRoutes = require("./routes/authRoutes");
+const historyRoutes = require("./routes/historyRoutes");
+
 const app = express();
 
 app.use(
@@ -20,6 +22,7 @@ app.use(cookieParser());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/interview", interviewRoutes);
+app.use("/api/history", historyRoutes);
 
 
 app.get("/", (req, res) => {
